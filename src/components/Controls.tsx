@@ -23,6 +23,7 @@ interface ControlsProps {
   onSelectPage: (index: number) => void;
   onBulkUpload: (files: FileList) => void;
   onResetAll: () => void;
+  onReflow: () => void;
   isGeneratingPDF: boolean;
   onCloseCellEditor?: () => void;
 }
@@ -41,6 +42,7 @@ export const Controls: React.FC<ControlsProps> = (props) => {
       <GridControls
         settings={props.settings}
         onSettingsChange={props.onSettingsChange}
+        onReflow={props.onReflow}
       />
 
       <TextStyling

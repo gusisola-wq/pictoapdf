@@ -1,16 +1,18 @@
 import React from 'react';
 import { GridSettings } from '../types';
-import { Columns, Grid3X3, Settings2 } from 'lucide-react';
+import { Columns, Grid3X3, Settings2, RefreshCw } from 'lucide-react';
 import { getPrintArea, getPaperDimensions, PAPER_SIZES } from '../utils/constants';
 
 interface GridControlsProps {
   settings: GridSettings;
   onSettingsChange: (settings: GridSettings) => void;
+  onReflow: () => void;
 }
 
 export const GridControls: React.FC<GridControlsProps> = ({
   settings,
   onSettingsChange,
+  onReflow,
 }) => {
   const handleSettingUpdate = <K extends keyof GridSettings>(
     key: K,
@@ -239,6 +241,15 @@ export const GridControls: React.FC<GridControlsProps> = ({
           className="w-full accent-blue-500 cursor-pointer h-1.5 bg-slate-900/50 rounded-lg appearance-none"
         />
       </div>
+
+      <button
+        onClick={onReflow}
+        className="w-full mb-4 py-2 px-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-95"
+        title="Reorganizar pictogramas en todas las páginas según las dimensiones actuales"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
+        Reorganizar Pictogramas
+      </button>
 
       <div className="space-y-4">
         <div className="bg-slate-900/40 rounded-xl p-3.5 border border-white/5 text-xs space-y-3">

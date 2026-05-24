@@ -360,6 +360,47 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     }
   }, [pages, settings, onToast]);
 
+  const handleReflowPictograms = useCallback(() => {
+    const slotsPerPage = settings.columns * settings.rows;
+
+    const allPictograms: PictogramItem[] = [];
+    pages.forEach((page) => {
+      for (let i = 0; i < slotsPerPage; i++) {
+        if (page.pictograms[i]) {
+          allPictograms.push(page.pictograms[i]);
+        }
+      }
+    });
+
+    if (allPictograms.length === 0) {
+      onToast('No hay pictogramas para reorganizar.');
+      return;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(allPictograms.length / slotsPerPage));
+    const newPages: SheetPage[] = [];
+
+    for (let p = 0; p < totalPages; p++) {
+      const pictograms: Record<number, PictogramItem> = {};
+      const start = p * slotsPerPage;
+      const end = Math.min(start + slotsPerPage, allPictograms.length);
+      for (let i = start; i < end; i++) {
+        pictograms[i - start] = allPictograms[i];
+      }
+      newPages.push({
+        id: `page-${Date.now()}-${p}`,
+        name: `Página ${p + 1}`,
+        pictograms,
+      });
+    }
+
+    setPages(newPages);
+    setActivePageIndex(0);
+    setSelectedSlot(null);
+    setMoveSourceSlot(null);
+    onToast(`Pictogramas reordenados en ${totalPages} página(s).`);
+  }, [pages, settings.columns, settings.rows, onToast]);
+
   const handleResetAll = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setSettings(DEFAULT_SETTINGS);
@@ -396,6 +437,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     handleAddPage,
     deletePage,
     handleExportPDF,
+    handleReflowPictograms,
     handleResetAll,
   };
 }

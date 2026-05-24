@@ -138,6 +138,7 @@ export default function App() {
             onDeletePage={handleDeletePage}
             onSelectPage={grid.setActivePageIndex}
             onBulkUpload={grid.handleBulkUpload}
+            onReflow={grid.handleReflowPictograms}
             onResetAll={() =>
               showConfirm(
                 'Restablecer PictoDraft',
