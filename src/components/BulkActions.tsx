@@ -14,6 +14,7 @@ interface BulkActionsProps {
   onClearOnlyImages: () => void;
   onClearAllSlots: () => void;
   onExportPDF: () => void;
+  onResetAll: () => void;
   isGeneratingPDF: boolean;
 }
 
@@ -23,6 +24,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
   onClearOnlyImages,
   onClearAllSlots,
   onExportPDF,
+  onResetAll,
   isGeneratingPDF,
 }) => {
   const bulkInputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +115,14 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
               Exportar a PDF Impresora
             </>
           )}
+        </button>
+
+        <button
+          onClick={onResetAll}
+          className="w-full py-3 px-4 bg-rose-700 hover:bg-rose-600 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition-all duration-200 cursor-pointer active:scale-95"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Restablecer a Configuración Inicial
         </button>
       </div>
     </div>

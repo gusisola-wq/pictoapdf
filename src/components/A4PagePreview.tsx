@@ -165,6 +165,7 @@ export const A4PagePreview: React.FC<A4PagePreviewProps> = ({
                   }
                 }}
                 onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => e.preventDefault()}
               >
                 <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 flex gap-1 z-20 transition-opacity">
                   {pic && (

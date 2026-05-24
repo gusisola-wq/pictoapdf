@@ -138,6 +138,16 @@ export default function App() {
             onDeletePage={handleDeletePage}
             onSelectPage={grid.setActivePageIndex}
             onBulkUpload={grid.handleBulkUpload}
+            onResetAll={() =>
+              showConfirm(
+                'Restablecer PictoDraft',
+                '¿Estás seguro de que deseas restablecer la configuración de fábrica? Se eliminarán todas las imágenes, textos, colores, páginas y configuraciones personalizadas guardadas. Esta acción no se puede deshacer.',
+                () => {
+                  grid.handleResetAll();
+                  hideConfirm();
+                },
+              )
+            }
             isGeneratingPDF={grid.isGeneratingPDF}
             onCloseCellEditor={() => grid.setSelectedSlot(null)}
           />
@@ -318,6 +328,7 @@ export default function App() {
             </div>
           </div>
         </div>
+
       </main>
 
       {confirmModal.isOpen && (

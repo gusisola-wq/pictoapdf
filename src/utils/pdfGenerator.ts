@@ -22,16 +22,46 @@ export function hexToRgb(hex: string): [number, number, number] {
   return [r, g, b];
 }
 
+function isSvgUrl(url: string): boolean {
+  return url.startsWith('data:image/svg') || url.toLowerCase().endsWith('.svg');
+}
+
+function renderSvgToCanvas(img: HTMLImageElement, size: number): Promise<string> {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(img, 0, 0, size, size);
+    }
+    resolve(canvas.toDataURL('image/png'));
+  });
+}
+
 function loadImageAsync(url: string): Promise<LoadedImage> {
   return new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      resolve({
-        element: img,
-        width: img.naturalWidth || 100,
-        height: img.naturalHeight || 100,
-      });
+    img.onload = async () => {
+      let w = img.naturalWidth || 100;
+      let h = img.naturalHeight || 100;
+      if (isSvgUrl(url) || w === 0 || h === 0) {
+        const renderSize = 200;
+        const pngDataUrl = await renderSvgToCanvas(img, renderSize);
+        const pngImg = new Image();
+        pngImg.onload = () => {
+          resolve({
+            element: pngImg,
+            width: pngImg.naturalWidth || renderSize,
+            height: pngImg.naturalHeight || renderSize,
+          });
+        };
+        pngImg.onerror = () => resolve({ element: pngImg, width: renderSize, height: renderSize });
+        pngImg.src = pngDataUrl;
+      } else {
+        resolve({ element: img, width: w, height: h });
+      }
     };
     img.onerror = () => {
       const fallback = new Image();

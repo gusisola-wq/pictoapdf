@@ -22,6 +22,7 @@ interface ControlsProps {
   onDeletePage: (index: number) => void;
   onSelectPage: (index: number) => void;
   onBulkUpload: (files: FileList) => void;
+  onResetAll: () => void;
   isGeneratingPDF: boolean;
   onCloseCellEditor?: () => void;
 }
@@ -60,6 +61,7 @@ export const Controls: React.FC<ControlsProps> = (props) => {
         onClearOnlyImages={props.onClearOnlyImages}
         onClearAllSlots={props.onClearAllSlots}
         onExportPDF={props.onExportPDF}
+        onResetAll={props.onResetAll}
         isGeneratingPDF={props.isGeneratingPDF}
       />
     </div>

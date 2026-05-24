@@ -124,7 +124,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
   );
 
   const handleBulkUpload = useCallback(
-    async (files: FileList) => {
+    (files: FileList) => {
       const capacity = (() => {
         if (settings.layoutMode === 'dimensions') {
           const gapMm = settings.gap;
@@ -164,60 +164,62 @@ export function usePictoGrid(onToast: (msg: string) => void) {
         }
       }
 
-      const results = (
-        await Promise.all(
-          fileArray.map((file, idx) => {
-            const { pageIdx, slotIdx } = targets[idx];
-            return new Promise<{ dataUrl: string; label: string; pageIdx: number; slotIdx: number } | null>(
-              (resolve) => {
-                const reader = new FileReader();
-                reader.onload = () =>
-                  resolve({
-                    dataUrl: reader.result as string,
-                    label: file.name.split('.')[0].replace(/[-_]/g, ' '),
-                    pageIdx,
-                    slotIdx,
-                  });
-                reader.onerror = () => {
-                  console.error('Error al leer archivo:', file.name);
-                  resolve(null);
-                };
-                reader.readAsDataURL(file);
-              },
-            );
-          }),
-        )
-      ).filter((r): r is NonNullable<typeof r> => r !== null);
+      type BulkResult = { dataUrl: string; label: string; pageIdx: number; slotIdx: number };
+      const results: (BulkResult | null)[] = [];
+      let pending = fileArray.length;
 
-      setPages((prev) => {
-        const updated = [...prev];
-        for (const r of results) {
-          while (updated.length <= r.pageIdx) {
-            const n = updated.length + 1;
-            updated.push({
-              id: `page-${Date.now()}-${n}`,
-              name: `Página ${n}`,
-              pictograms: {},
-            });
-          }
-          const pg = { ...updated[r.pageIdx], pictograms: { ...updated[r.pageIdx].pictograms } };
-          pg.pictograms[r.slotIdx] = {
-            id: `pic-${Date.now()}-${r.slotIdx}-${r.pageIdx}`,
-            imageUrl: r.dataUrl,
-            label: r.label,
-            categoryId: 'none',
+      fileArray.forEach((file, idx) => {
+        const { pageIdx, slotIdx } = targets[idx];
+        const reader = new FileReader();
+        reader.onload = () => {
+          results[idx] = {
+            dataUrl: reader.result as string,
+            label: file.name.split('.')[0].replace(/[-_]/g, ' '),
+            pageIdx,
+            slotIdx,
           };
-          updated[r.pageIdx] = pg;
-        }
-        return updated;
+          pending--;
+          if (pending === 0) flush();
+        };
+        reader.onerror = () => {
+          results[idx] = null;
+          pending--;
+          if (pending === 0) flush();
+        };
+        reader.readAsDataURL(file);
       });
 
-      if (pagesToAdd > 0) {
-        setActivePageIndex(firstNewPageIdx + pagesToAdd - 1);
-      }
+      function flush() {
+        const valid = results.filter((r): r is BulkResult => r !== null);
 
-      if (fileArray.length > 0) {
-        onToast(`Cargando ${fileArray.length} imágenes...`);
+        setPages((prev) => {
+          const updated = [...prev];
+          for (const r of valid) {
+            while (updated.length <= r.pageIdx) {
+              const n = updated.length + 1;
+              updated.push({
+                id: `page-${Date.now()}-${n}`,
+                name: `Página ${n}`,
+                pictograms: {},
+              });
+            }
+            const pg = { ...updated[r.pageIdx], pictograms: { ...updated[r.pageIdx].pictograms } };
+            pg.pictograms[r.slotIdx] = {
+              id: `pic-${Date.now()}-${r.slotIdx}-${r.pageIdx}`,
+              imageUrl: r.dataUrl,
+              label: r.label,
+              categoryId: 'none',
+            };
+            updated[r.pageIdx] = pg;
+          }
+          return updated;
+        });
+
+        if (pagesToAdd > 0) {
+          setActivePageIndex(firstNewPageIdx + pagesToAdd - 1);
+        }
+
+        onToast(`Cargando ${valid.length} imágenes...`);
       }
     },
     [activePageIndex, settings, pages, onToast],
@@ -358,6 +360,18 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     }
   }, [pages, settings, onToast]);
 
+  const handleResetAll = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY);
+    setSettings(DEFAULT_SETTINGS);
+    setPages(createInitialPages());
+    setActivePageIndex(0);
+    setSelectedSlot(null);
+    setMoveSourceSlot(null);
+    setScaleWidth(680);
+    onToast('Configuración restablecida. La página se recargará.');
+    setTimeout(() => window.location.reload(), 800);
+  }, [onToast]);
+
   return {
     settings,
     setSettings,
@@ -382,5 +396,6 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     handleAddPage,
     deletePage,
     handleExportPDF,
+    handleResetAll,
   };
 }
