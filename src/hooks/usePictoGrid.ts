@@ -365,11 +365,10 @@ export function usePictoGrid(onToast: (msg: string) => void) {
 
     const allPictograms: PictogramItem[] = [];
     pages.forEach((page) => {
-      for (let i = 0; i < slotsPerPage; i++) {
-        if (page.pictograms[i]) {
-          allPictograms.push(page.pictograms[i]);
-        }
-      }
+      const keys = Object.keys(page.pictograms).map(Number).sort((a, b) => a - b);
+      keys.forEach((key) => {
+        allPictograms.push(page.pictograms[key]);
+      });
     });
 
     if (allPictograms.length === 0) {
