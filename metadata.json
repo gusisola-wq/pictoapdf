@@ -1,0 +1,6 @@
+{
+  "name": "Creador de Pictogramas",
+  "description": "Una aplicación web offline para generar y organizar hojas de pictogramas con cuadrículas personalizables y exportación a PDF para impresión.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
