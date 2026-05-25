@@ -11,6 +11,8 @@ import {
   HelpCircle,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   Trash2,
   Layers,
   ZoomIn,
@@ -27,6 +29,9 @@ export default function App() {
 
   const [fitZoomMode, setFitZoomMode] = useState<'width' | 'page'>('width');
   const [showHelp, setShowHelp] = useState(false);
+
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
 
   const handleToggleFit = useCallback(() => {
     const pane = document.getElementById('preview-container-pane');
@@ -155,184 +160,227 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
-        <div className="w-full lg:w-[420px] bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex-1 lg:flex-none flex flex-col overflow-y-auto lg:max-h-full min-h-0">
-          <Controls
-            settings={grid.settings}
-            onSettingsChange={grid.setSettings}
-            selectedSlot={grid.selectedSlot}
-            selectedSlotItem={
-              grid.selectedSlot !== null
-                ? grid.activePage.pictograms[grid.selectedSlot]
-                : undefined
-            }
-            onUpdateSlot={grid.handleUpdateSlot}
-            onClearAllSlots={handleClearAllSlots}
-            onClearOnlyImages={handleClearOnlyImages}
-            onLoadSamples={grid.handleLoadSamples}
-            onExportPDF={grid.handleExportPDF}
-            pagesCount={grid.pages.length}
-            activePageIndex={grid.activePageIndex}
-            onAddPage={grid.handleAddPage}
-            onDeletePage={handleDeletePage}
-            onSelectPage={grid.setActivePageIndex}
-            onBulkUpload={grid.handleBulkUpload}
-            onReflow={grid.handleReflowPictograms}
-            onResetAll={() =>
-              showConfirm(
-                'Restablecer Picto a PDF',
-                '¿Estás seguro de que deseas restablecer la configuración de fábrica? Se eliminarán todas las imágenes, textos, colores, páginas y configuraciones personalizadas guardadas. Esta acción no se puede deshacer.',
-                () => {
-                  grid.handleResetAll();
-                  hideConfirm();
-                },
-              )
-            }
-            isGeneratingPDF={grid.isGeneratingPDF}
-            onCloseCellEditor={() => grid.setSelectedSlot(null)}
-          />
+      <main className={`flex-1 flex flex-col lg:flex-row ${
+          leftCollapsed !== rightCollapsed ? 'overflow-hidden' : 'overflow-y-auto'
+        } lg:overflow-hidden`}>
+        <div
+          className={`w-full lg:w-[420px] bg-white/5 backdrop-blur-xl border-r border-white/10 p-4 lg:p-6 flex flex-col lg:overflow-y-auto lg:max-h-full min-h-0 ${
+            leftCollapsed ? 'flex-none' : (rightCollapsed ? 'flex-1 overflow-y-auto' : 'min-h-full shrink-0')
+          } lg:flex-none lg:min-h-0`}
+        >
+          <div className="lg:hidden flex items-center justify-between mb-3 shrink-0">
+            <span className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Controles</span>
+            <button
+              onClick={() => setLeftCollapsed(c => !c)}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+            >
+              {leftCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </button>
+          </div>
+          <div className={leftCollapsed ? 'hidden lg:block' : 'flex flex-col flex-1'}>
+            <Controls
+              settings={grid.settings}
+              onSettingsChange={grid.setSettings}
+              selectedSlot={grid.selectedSlot}
+              selectedSlotItem={
+                grid.selectedSlot !== null
+                  ? grid.activePage.pictograms[grid.selectedSlot]
+                  : undefined
+              }
+              onUpdateSlot={grid.handleUpdateSlot}
+              onClearAllSlots={handleClearAllSlots}
+              onClearOnlyImages={handleClearOnlyImages}
+              onLoadSamples={grid.handleLoadSamples}
+              onExportPDF={grid.handleExportPDF}
+              pagesCount={grid.pages.length}
+              activePageIndex={grid.activePageIndex}
+              onAddPage={grid.handleAddPage}
+              onDeletePage={handleDeletePage}
+              onSelectPage={grid.setActivePageIndex}
+              onBulkUpload={grid.handleBulkUpload}
+              onReflow={grid.handleReflowPictograms}
+              onResetAll={() =>
+                showConfirm(
+                  'Restablecer Picto a PDF',
+                  '¿Estás seguro de que deseas restablecer la configuración de fábrica? Se eliminarán todas las imágenes, textos, colores, páginas y configuraciones personalizadas guardadas. Esta acción no se puede deshacer.',
+                  () => {
+                    grid.handleResetAll();
+                    hideConfirm();
+                  },
+                )
+              }
+              isGeneratingPDF={grid.isGeneratingPDF}
+              onCloseCellEditor={() => grid.setSelectedSlot(null)}
+            />
+          </div>
         </div>
+
+        {!leftCollapsed && !rightCollapsed && (
+          <div className="sticky bottom-0 z-10 lg:hidden bg-slate-800/90 backdrop-blur-md border-t border-white/10 px-4 py-2.5 flex items-center justify-between shrink-0">
+            <span className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Vista Previa</span>
+            <button
+              onClick={() => setRightCollapsed(true)}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         <div
           id="preview-container-pane"
-          className="flex-1 flex flex-col bg-black/20 overflow-y-auto p-4 lg:p-6 select-none relative min-h-0"
+          className={`flex flex-col bg-black/20 p-4 lg:p-6 select-none relative min-h-0 lg:overflow-y-auto ${
+            rightCollapsed ? 'flex-none' : (leftCollapsed ? 'flex-1 overflow-y-auto' : 'min-h-full shrink-0')
+          } lg:flex-1 lg:min-h-0`}
         >
-          <div className="bg-white/5 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 mb-4 shrink-0">
-            <div className="flex items-center gap-3">
-              <button
-                disabled={grid.activePageIndex === 0}
-                onClick={() => {
-                  grid.setActivePageIndex(Math.max(0, grid.activePageIndex - 1));
-                  grid.setSelectedSlot(null);
-                  grid.setMoveSourceSlot(null);
-                }}
-                className={`p-1.5 rounded-lg border transition ${
-                  grid.activePageIndex === 0
-                    ? 'border-white/5 text-slate-600 cursor-not-allowed'
-                    : 'border-white/15 hover:bg-white/5 text-slate-300'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              <div className="text-xs font-bold text-slate-200">
-                HOJA {grid.activePageIndex + 1} de {grid.pages.length}
-              </div>
-
-              <button
-                disabled={grid.activePageIndex === grid.pages.length - 1}
-                onClick={() => {
-                  grid.setActivePageIndex(Math.min(grid.pages.length - 1, grid.activePageIndex + 1));
-                  grid.setSelectedSlot(null);
-                  grid.setMoveSourceSlot(null);
-                }}
-                className={`p-1.5 rounded-lg border transition ${
-                  grid.activePageIndex === grid.pages.length - 1
-                    ? 'border-white/5 text-slate-600 cursor-not-allowed'
-                    : 'border-white/15 hover:bg-white/5 text-slate-300'
-                }`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
-              <span className="text-xs font-medium text-slate-400 italic">
-                {grid.activePage.name}
-              </span>
-
-              <div className="flex items-center gap-1.5 ml-1 border-l border-white/10 pl-2.5">
+          <div className={`lg:hidden items-center justify-between mb-3 shrink-0 ${
+            leftCollapsed || rightCollapsed ? 'flex' : 'hidden'
+          }`}>
+            <span className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Vista Previa</span>
+            <button
+              onClick={() => setRightCollapsed(c => !c)}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+            >
+              {rightCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </button>
+          </div>
+          <div className={rightCollapsed ? 'hidden lg:flex flex-col' : 'flex flex-col flex-1'}>
+            <div className="bg-white/5 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 mb-4 shrink-0">
+              <div className="flex items-center gap-3">
                 <button
-                  type="button"
-                  onClick={handleClearOnlyImages}
-                  className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 rounded-lg text-[10px] font-semibold transition cursor-pointer"
-                  title="Borrar todas las imágenes de esta página conservando las etiquetas escritas"
+                  disabled={grid.activePageIndex === 0}
+                  onClick={() => {
+                    grid.setActivePageIndex(Math.max(0, grid.activePageIndex - 1));
+                    grid.setSelectedSlot(null);
+                    grid.setMoveSourceSlot(null);
+                  }}
+                  className={`p-1.5 rounded-lg border transition ${
+                    grid.activePageIndex === 0
+                      ? 'border-white/5 text-slate-600 cursor-not-allowed'
+                      : 'border-white/15 hover:bg-white/5 text-slate-300'
+                  }`}
                 >
-                  Borrar Imágenes
+                  <ChevronLeft className="w-4 h-4" />
                 </button>
+
+                <div className="text-xs font-bold text-slate-200">
+                  HOJA {grid.activePageIndex + 1} de {grid.pages.length}
+                </div>
+
                 <button
-                  type="button"
-                  onClick={handleClearAllSlots}
-                  className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg text-[10px] font-semibold transition cursor-pointer"
-                  title="Vaciar texto e imágenes de todas las celdas"
+                  disabled={grid.activePageIndex === grid.pages.length - 1}
+                  onClick={() => {
+                    grid.setActivePageIndex(Math.min(grid.pages.length - 1, grid.activePageIndex + 1));
+                    grid.setSelectedSlot(null);
+                    grid.setMoveSourceSlot(null);
+                  }}
+                  className={`p-1.5 rounded-lg border transition ${
+                    grid.activePageIndex === grid.pages.length - 1
+                      ? 'border-white/5 text-slate-600 cursor-not-allowed'
+                      : 'border-white/15 hover:bg-white/5 text-slate-300'
+                  }`}
                 >
-                  Vaciar Todo
+                  <ChevronRight className="w-4 h-4" />
                 </button>
-                {grid.pages.length > 1 && (
+
+                <span className="text-xs font-medium text-slate-400 italic">
+                  {grid.activePage.name}
+                </span>
+
+                <div className="flex items-center gap-1.5 ml-1 border-l border-white/10 pl-2.5">
                   <button
                     type="button"
-                    onClick={() => handleDeletePage(grid.activePageIndex)}
-                    className="px-2.5 py-1 bg-rose-600/10 hover:bg-rose-600/20 text-rose-300 border border-rose-600/20 rounded-lg text-[10px] font-semibold transition cursor-pointer"
-                    title="Eliminar esta página completa"
+                    onClick={handleClearOnlyImages}
+                    className="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 rounded-lg text-[10px] font-semibold transition cursor-pointer"
+                    title="Borrar todas las imágenes de esta página conservando las etiquetas escritas"
                   >
-                    Borrar Página
+                    Borrar Imágenes
                   </button>
-                )}
+                  <button
+                    type="button"
+                    onClick={handleClearAllSlots}
+                    className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 rounded-lg text-[10px] font-semibold transition cursor-pointer"
+                    title="Vaciar texto e imágenes de todas las celdas"
+                  >
+                    Vaciar Todo
+                  </button>
+                  {grid.pages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePage(grid.activePageIndex)}
+                      className="px-2.5 py-1 bg-rose-600/10 hover:bg-rose-600/20 text-rose-300 border border-rose-600/20 rounded-lg text-[10px] font-semibold transition cursor-pointer"
+                      title="Eliminar esta página completa"
+                    >
+                      Borrar Página
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {grid.moveSourceSlot !== null && (
+                <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-lg text-[11px] font-semibold animate-pulse">
+                  Modo Reordenar: Haz clic en otra celda de la hoja para intercambiar
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => grid.setScaleWidth(Math.max(300, grid.scaleWidth - 50))}
+                  className="p-1 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded transition"
+                  title="Reducir tamaño del preview"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-mono font-semibold text-slate-400">Preview:</span>
+                  <span className="text-xs font-mono font-bold text-slate-200">
+                    {Math.round((grid.scaleWidth / 793.7) * 100)}%
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => grid.setScaleWidth(Math.min(1200, grid.scaleWidth + 50))}
+                  className="p-1 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded transition"
+                  title="Ampliar tamaño del preview"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={handleToggleFit}
+                  className={`p-1 rounded transition border ${
+                    fitZoomMode === 'page'
+                      ? 'bg-blue-600/20 text-blue-300 border-blue-500/40'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border-white/10'
+                  }`}
+                  title={fitZoomMode === 'page' ? 'Ajustar al ancho' : 'Ajustar a página completa'}
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            {grid.moveSourceSlot !== null && (
-              <div className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-lg text-[11px] font-semibold animate-pulse">
-                Modo Reordenar: Haz clic en otra celda de la hoja para intercambiar
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => grid.setScaleWidth(Math.max(300, grid.scaleWidth - 50))}
-                className="p-1 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded transition"
-                title="Reducir tamaño del preview"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-mono font-semibold text-slate-400">Preview:</span>
-                <span className="text-xs font-mono font-bold text-slate-200">
-                  {Math.round((grid.scaleWidth / 793.7) * 100)}%
-                </span>
-              </div>
-
-              <button
-                onClick={() => grid.setScaleWidth(Math.min(1200, grid.scaleWidth + 50))}
-                className="p-1 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded transition"
-                title="Ampliar tamaño del preview"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-
-              <button
-                onClick={handleToggleFit}
-                className={`p-1 rounded transition border ${
-                  fitZoomMode === 'page'
-                    ? 'bg-blue-600/20 text-blue-300 border-blue-500/40'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border-white/10'
-                }`}
-                title={fitZoomMode === 'page' ? 'Ajustar al ancho' : 'Ajustar a página completa'}
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex-1 flex justify-center items-start overflow-x-auto min-h-0">
+              <A4PagePreview
+                page={grid.activePage}
+                settings={grid.settings}
+                scaleWidth={grid.scaleWidth}
+                selectedSlot={grid.selectedSlot}
+                onSlotSelect={(idx) => {
+                  grid.setSelectedSlot(idx === grid.selectedSlot ? null : idx);
+                  grid.setMoveSourceSlot(null);
+                }}
+                onSlotClear={(idx, e) => {
+                  e.stopPropagation();
+                  grid.handleUpdateSlot(idx, null);
+                }}
+                onSlotMoveStart={grid.handleSlotMoveStart}
+                moveSourceSlot={grid.moveSourceSlot}
+                onSlotDropToSwap={grid.handleSlotDropToSwap}
+              />
             </div>
           </div>
-
-          <div className="flex-1 flex justify-center items-start overflow-x-auto min-h-0">
-            <A4PagePreview
-              page={grid.activePage}
-              settings={grid.settings}
-              scaleWidth={grid.scaleWidth}
-              selectedSlot={grid.selectedSlot}
-              onSlotSelect={(idx) => {
-                grid.setSelectedSlot(idx === grid.selectedSlot ? null : idx);
-                grid.setMoveSourceSlot(null);
-              }}
-              onSlotClear={(idx, e) => {
-                e.stopPropagation();
-                grid.handleUpdateSlot(idx, null);
-              }}
-              onSlotMoveStart={grid.handleSlotMoveStart}
-              moveSourceSlot={grid.moveSourceSlot}
-              onSlotDropToSwap={grid.handleSlotDropToSwap}
-            />
-          </div>
-
         </div>
 
       </main>
