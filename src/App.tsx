@@ -180,7 +180,7 @@ export default function App() {
             onReflow={grid.handleReflowPictograms}
             onResetAll={() =>
               showConfirm(
-                'Restablecer PictoDraft',
+                'Restablecer Picto a PDF',
                 '¿Estás seguro de que deseas restablecer la configuración de fábrica? Se eliminarán todas las imágenes, textos, colores, páginas y configuraciones personalizadas guardadas. Esta acción no se puede deshacer.',
                 () => {
                   grid.handleResetAll();
@@ -386,10 +386,10 @@ export default function App() {
               <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
                 <div className="font-bold text-slate-100 flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center font-mono shrink-0">1</span>
-                  Sube tus imágenes
+                  Carga tus imágenes
                 </div>
                 <p className="leading-relaxed text-slate-400">
-                  Haz clic en cualquier celda para cargar fotos o dibujos desde tu PC o tablet. También puedes <strong>arrastrar y soltar múltiples archivos</strong> de golpe.
+                  Haz clic en cualquier celda para cargar fotos o dibujos desde tu PC o tablet. También puedes <strong>arrastrar y soltar múltiples archivos</strong> de golpe. Todo el proceso se realiza <strong>en forma local</strong>: tus imágenes nunca salen de tu dispositivo.
                 </p>
               </div>
               <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
@@ -403,11 +403,20 @@ export default function App() {
               </div>
               <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
                 <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-mono shrink-0">3</span>
-                  Imprime con calidad
+                  <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center font-mono shrink-0">3</span>
+                  Reorganiza el contenido
                 </div>
                 <p className="leading-relaxed text-slate-400">
-                  Exporta tu composición a un PDF estandarizado tamaño A4 con el margen inferior especial de 15mm que asegura que ninguna impresora recorte tus pictogramas.
+                  Si al modificar el tamaño de la cuadrícula algunas imágenes quedan fuera de la hoja, usa el botón <strong>"Reorganizar Pictogramas"</strong> para redistribuirlas automáticamente en todas las páginas sin perder ninguna.
+                </p>
+              </div>
+              <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
+                <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-mono shrink-0">4</span>
+                  Exporta a PDF
+                </div>
+                <p className="leading-relaxed text-slate-400">
+                  Exporta tu composición a un PDF estandarizado. La generación del PDF se realiza <strong>en forma local</strong> en tu dispositivo, sin enviar ningún dato a servidores externos.
                 </p>
               </div>
             </div>
