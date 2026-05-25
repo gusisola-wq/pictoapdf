@@ -114,7 +114,7 @@ export async function generatePDF(
   const MARGIN_BOTTOM = settings.marginBottom;
 
   const doc = new jsPDF({
-    orientation: 'portrait',
+    orientation: settings.orientation === 'landscape' ? 'landscape' : 'portrait',
     unit: 'mm',
     format: [PAGE_WIDTH, PAGE_HEIGHT],
   });

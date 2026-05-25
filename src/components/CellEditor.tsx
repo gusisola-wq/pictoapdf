@@ -54,9 +54,9 @@ export const CellEditor: React.FC<CellEditorProps> = ({
       {selectedSlot === null ? (
         <div className="text-center py-4">
           <Settings2 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-          <h3 className="text-xs font-semibold text-slate-200 mb-1">Editor Detallado</h3>
+          <h3 className="text-xs font-semibold text-slate-200 mb-1">Editar Celda</h3>
           <p className="text-[11px] text-slate-400 max-w-[240px] mx-auto leading-relaxed">
-            Haz clic en cualquier celda de la hoja A4 para cargarle una imagen, cambiar su etiqueta y clase de color.
+            Haz clic en cualquier celda para cargarle una imagen, cambiar su etiqueta y clase de color.
           </p>
         </div>
       ) : (

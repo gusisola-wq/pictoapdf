@@ -36,7 +36,7 @@ export const PageManager: React.FC<PageManagerProps> = ({
     <div className="bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-lg text-slate-100">
       <h3 className="text-sm font-semibold text-white flex items-center gap-2 mb-3">
         <FileText className="w-4 h-4 text-blue-400" />
-        Gestión de Hojas (Páginas)
+        Gestión de Páginas
       </h3>
       <div className="flex flex-wrap gap-1.5 mb-3">
         {Array.from({ length: pagesCount }).map((_, idx) => (
@@ -73,7 +73,7 @@ export const PageManager: React.FC<PageManagerProps> = ({
         </button>
       </div>
       <p className="text-[11px] text-slate-400">
-        Puedes agregar múltiples hojas A4 y exportarlas juntas en un único PDF.
+        Puedes agregar múltiples páginas y exportarlas juntas en un único PDF.
       </p>
     </div>
   );

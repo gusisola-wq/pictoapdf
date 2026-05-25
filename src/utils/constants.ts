@@ -15,14 +15,23 @@ export const STORAGE_KEY = 'pictodraft-state';
 export const TOAST_DURATION_MS = 4500;
 
 export function getPaperDimensions(settings: GridSettings): { width: number; height: number } {
+  let width: number;
+  let height: number;
+
   if (settings.paperSize === 'custom') {
-    return {
-      width: Math.max(50, settings.paperWidth ?? 210),
-      height: Math.max(50, settings.paperHeight ?? 297),
-    };
+    width = Math.max(50, settings.paperWidth ?? 210);
+    height = Math.max(50, settings.paperHeight ?? 297);
+  } else {
+    const preset = PAPER_SIZES[settings.paperSize as keyof typeof PAPER_SIZES] ?? PAPER_SIZES.A4;
+    width = preset.width;
+    height = preset.height;
   }
-  const preset = PAPER_SIZES[settings.paperSize as keyof typeof PAPER_SIZES] ?? PAPER_SIZES.A4;
-  return { width: preset.width, height: preset.height };
+
+  if (settings.orientation === 'landscape' && settings.paperSize !== 'custom') {
+    [width, height] = [height, width];
+  }
+
+  return { width, height };
 }
 
 export function getPrintArea(settings: GridSettings): { width: number; height: number } {

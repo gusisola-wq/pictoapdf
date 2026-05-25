@@ -1,6 +1,7 @@
 export type TextPosition = 'top' | 'bottom' | 'none';
 export type TextCase = 'uppercase' | 'lowercase' | 'normal';
 export type PaperSize = 'A4' | 'A5' | 'A6' | 'custom';
+export type Orientation = 'portrait' | 'landscape';
 
 export interface FitzgeraldCategory {
   id: string;
@@ -45,6 +46,7 @@ export interface GridSettings {
   picWidth: number;
   picHeight: number;
   paperSize: PaperSize;
+  orientation: Orientation;
   paperWidth: number;
   paperHeight: number;
   marginTop: number;

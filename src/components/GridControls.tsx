@@ -261,7 +261,7 @@ export const GridControls: React.FC<GridControlsProps> = ({
             Tamaño de Hoja
           </div>
 
-          <div className="grid grid-cols-4 gap-1 bg-slate-950/40 p-1 rounded-lg border border-white/5">
+          <div className="grid grid-cols-[1fr_1fr_1fr_1.8fr] gap-1 bg-slate-950/40 p-1 rounded-lg border border-white/5">
             {(['A4', 'A5', 'A6', 'custom'] as const).map((size) => (
               <button
                 key={size}
@@ -277,6 +277,33 @@ export const GridControls: React.FC<GridControlsProps> = ({
               </button>
             ))}
           </div>
+
+          {settings.paperSize !== 'custom' && (
+            <div className="grid grid-cols-2 gap-1 bg-slate-950/40 p-1 rounded-lg border border-white/5">
+              <button
+                type="button"
+                onClick={() => handleSettingUpdate('orientation', 'portrait')}
+                className={`py-1 text-xs font-medium rounded-md transition-all ${
+                  settings.orientation === 'portrait'
+                    ? 'bg-white/10 text-white shadow-sm font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Vertical
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSettingUpdate('orientation', 'landscape')}
+                className={`py-1 text-xs font-medium rounded-md transition-all ${
+                  settings.orientation === 'landscape'
+                    ? 'bg-white/10 text-white shadow-sm font-semibold'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Horizontal
+              </button>
+            </div>
+          )}
 
           {settings.paperSize === 'custom' && (
             <div className="grid grid-cols-2 gap-3">

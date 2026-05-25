@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { SheetPage, GridSettings, PictogramItem } from '../types';
 import { INITIAL_SAMPLE_PICTOGRAMS } from '../data/samples';
 import { generatePDF } from '../utils/pdfGenerator';
-import { STORAGE_KEY } from '../utils/constants';
+import { STORAGE_KEY, getPrintArea } from '../utils/constants';
 
 const DEFAULT_SETTINGS: GridSettings = {
   columns: 4,
@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: GridSettings = {
   picWidth: 46,
   picHeight: 46,
   paperSize: 'A4',
+  orientation: 'portrait',
   paperWidth: 210,
   paperHeight: 297,
   marginTop: 5,
@@ -127,9 +128,10 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     (files: FileList) => {
       const capacity = (() => {
         if (settings.layoutMode === 'dimensions') {
+          const area = getPrintArea(settings);
           const gapMm = settings.gap;
-          const cols = Math.max(1, Math.floor((200 + gapMm) / (settings.picWidth + gapMm)));
-          const rows = Math.max(1, Math.floor((277 + gapMm) / (settings.picHeight + gapMm)));
+          const cols = Math.max(1, Math.floor((area.width + gapMm) / (settings.picWidth + gapMm)));
+          const rows = Math.max(1, Math.floor((area.height + gapMm) / (settings.picHeight + gapMm)));
           return cols * rows;
         }
         return settings.columns * settings.rows;

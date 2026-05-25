@@ -20,6 +20,7 @@ const BASE_SETTINGS: GridSettings = {
   picWidth: 46,
   picHeight: 46,
   paperSize: 'A4',
+  orientation: 'portrait',
   paperWidth: 210,
   paperHeight: 297,
   marginTop: 5,
@@ -78,6 +79,30 @@ describe('getPaperDimensions', () => {
     const dims = getPaperDimensions({
       ...BASE_SETTINGS,
       paperSize: 'custom',
+      paperWidth: 300,
+      paperHeight: 400,
+    });
+    expect(dims.width).toBe(300);
+    expect(dims.height).toBe(400);
+  });
+
+  it('should swap dimensions for landscape A4', () => {
+    const dims = getPaperDimensions({ ...BASE_SETTINGS, orientation: 'landscape' });
+    expect(dims.width).toBe(297);
+    expect(dims.height).toBe(210);
+  });
+
+  it('should swap dimensions for landscape A5', () => {
+    const dims = getPaperDimensions({ ...BASE_SETTINGS, paperSize: 'A5', orientation: 'landscape' });
+    expect(dims.width).toBe(210);
+    expect(dims.height).toBe(148);
+  });
+
+  it('should NOT swap dimensions for custom paper in landscape', () => {
+    const dims = getPaperDimensions({
+      ...BASE_SETTINGS,
+      paperSize: 'custom',
+      orientation: 'landscape',
       paperWidth: 300,
       paperHeight: 400,
     });

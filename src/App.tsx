@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { usePictoGrid } from './hooks/usePictoGrid';
 import { useToast } from './hooks/useToast';
 import { useConfirmModal } from './hooks/useConfirmModal';
 import { A4PagePreview } from './components/A4PagePreview';
 import { Controls } from './components/Controls';
+import { getPaperDimensions } from './utils/constants';
 import {
   Download,
   Sparkles,
@@ -15,6 +16,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  X,
 } from 'lucide-react';
 
 export default function App() {
@@ -23,16 +25,50 @@ export default function App() {
 
   const grid = usePictoGrid(triggerToast);
 
+  const [fitZoomMode, setFitZoomMode] = useState<'width' | 'page'>('width');
+  const [showHelp, setShowHelp] = useState(false);
+
+  const handleToggleFit = useCallback(() => {
+    const pane = document.getElementById('preview-container-pane');
+    if (!pane) return;
+    const paneWidth = pane.clientWidth;
+
+    if (fitZoomMode === 'width') {
+      const zoomBar = pane.querySelector('[class*="rounded-xl"]');
+      const zoomRect = zoomBar?.getBoundingClientRect();
+      const availableH = zoomRect ? window.innerHeight - zoomRect.bottom - 24 : 400;
+      const paper = getPaperDimensions(grid.settings);
+      const aspectRatio = paper.height / paper.width;
+      const widthFromHeight = Math.max(200, availableH / aspectRatio);
+      grid.setScaleWidth(Math.min(paneWidth - 24, widthFromHeight));
+      setFitZoomMode('page');
+    } else {
+      grid.setScaleWidth(Math.min(800, paneWidth - 48));
+      setFitZoomMode('width');
+    }
+  }, [fitZoomMode, grid.settings, grid.setScaleWidth]);
+
   useEffect(() => {
     const handleResize = () => {
-      const containerWidth = document.getElementById('preview-container-pane')?.clientWidth || 800;
-      const idealWidth = Math.min(780, Math.max(380, containerWidth - 48));
-      grid.setScaleWidth(idealWidth);
+      const pane = document.getElementById('preview-container-pane');
+      if (!pane) return;
+      const paneWidth = pane.clientWidth;
+      if (fitZoomMode === 'page') {
+        const zoomBar = pane.querySelector('[class*="rounded-xl"]');
+        const zoomRect = zoomBar?.getBoundingClientRect();
+        const availableH = zoomRect ? window.innerHeight - zoomRect.bottom - 24 : 400;
+        const paper = getPaperDimensions(grid.settings);
+        const aspectRatio = paper.height / paper.width;
+        const widthFromHeight = Math.max(200, availableH / aspectRatio);
+        grid.setScaleWidth(Math.min(paneWidth - 24, widthFromHeight));
+      } else {
+        grid.setScaleWidth(Math.min(780, Math.max(380, paneWidth - 48)));
+      }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [fitZoomMode, grid.settings, grid.setScaleWidth]);
 
   const handleClearAllSlots = () => {
     showConfirm(
@@ -70,7 +106,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] text-slate-100 flex flex-col font-sans"
+      className="h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] text-slate-100 flex flex-col font-sans overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
@@ -79,25 +115,28 @@ export default function App() {
         }
       }}
     >
-      <header className="bg-white/5 backdrop-blur-md border-b border-white/10 py-3.5 px-6 shadow-lg shrink-0 flex items-center justify-between z-20">
+      <header className="bg-white/5 backdrop-blur-md border-b border-white/10 py-3.5 px-6 shadow-lg shrink-0 flex items-center justify-between z-30 sticky top-0">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-blue-600 rounded-lg text-white shadow-lg">
             <Layers className="w-5 h-5" />
           </div>
           <div>
             <h1 className="text-lg font-semibold tracking-tight uppercase text-slate-100">
-              PictoDraft <span className="text-blue-400 font-normal">A4</span>
+              Picto a PDF
             </h1>
             <p className="text-xs text-slate-400">
-              Generador de hojas de pictogramas offline con cuadrícula personalizable
+              Generador de hojas de pictogramas offline
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-300 text-xs font-semibold rounded-full border border-emerald-500/20">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Modo Offline Activado
-          </div>
+          <button
+            onClick={() => setShowHelp(true)}
+            className="p-2 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded-lg transition border border-white/10 cursor-pointer"
+            title="¿Cómo funciona?"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
           <button
             onClick={grid.handleExportPDF}
             disabled={grid.isGeneratingPDF}
@@ -116,8 +155,8 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <div className="w-full lg:w-[420px] bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex-none flex flex-col overflow-hidden max-h-full">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+        <div className="w-full lg:w-[420px] bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex-1 lg:flex-none flex flex-col overflow-y-auto lg:max-h-full min-h-0">
           <Controls
             settings={grid.settings}
             onSettingsChange={grid.setSettings}
@@ -156,7 +195,7 @@ export default function App() {
 
         <div
           id="preview-container-pane"
-          className="flex-1 flex flex-col bg-black/20 overflow-y-auto p-4 lg:p-6 select-none relative"
+          className="flex-1 flex flex-col bg-black/20 overflow-y-auto p-4 lg:p-6 select-none relative min-h-0"
         >
           <div className="bg-white/5 backdrop-blur-md p-3 rounded-xl border border-white/10 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 mb-4 shrink-0">
             <div className="flex items-center gap-3">
@@ -261,12 +300,13 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => {
-                  const paneWidth = document.getElementById('preview-container-pane')?.clientWidth || 800;
-                  grid.setScaleWidth(Math.min(800, paneWidth - 48));
-                }}
-                className="p-1 text-slate-400 hover:text-slate-200 hover:bg-white/5 rounded transition border border-white/10"
-                title="Ajustar zoom óptimo"
+                onClick={handleToggleFit}
+                className={`p-1 rounded transition border ${
+                  fitZoomMode === 'page'
+                    ? 'bg-blue-600/20 text-blue-300 border-blue-500/40'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border-white/10'
+                }`}
+                title={fitZoomMode === 'page' ? 'Ajustar al ancho' : 'Ajustar a página completa'}
               >
                 <Maximize2 className="w-3.5 h-3.5" />
               </button>
@@ -293,41 +333,6 @@ export default function App() {
             />
           </div>
 
-          <div className="mt-8 bg-white/5 backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-lg max-w-4xl mx-auto w-full">
-            <h4 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-3">
-              <HelpCircle className="w-4 h-4 text-blue-400" />
-              ¿Cómo funciona este Generador de Pictogramas?
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs text-slate-300">
-              <div className="space-y-1 bg-slate-900/40 p-3.5 rounded-xl border border-white/5">
-                <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center font-mono">1</span>
-                  Sube tus imágenes
-                </div>
-                <p className="leading-relaxed text-slate-400">
-                  Haz clic en cualquier celda para cargar fotos o dibujos desde tu PC o tablet. También puedes <strong>arrastrar y soltar múltiples archivos</strong> de golpe.
-                </p>
-              </div>
-              <div className="space-y-1 bg-slate-900/40 p-3.5 rounded-xl border border-white/5">
-                <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-mono">2</span>
-                  Ajusta la cuadrícula
-                </div>
-                <p className="leading-relaxed text-slate-400">
-                  Cambia el número de filas, columnas y la separación entre ellas (gap). Todas las celdas conservarán exactamente el mismo tamaño para un acabado perfecto.
-                </p>
-              </div>
-              <div className="space-y-1 bg-slate-900/40 p-3.5 rounded-xl border border-white/5">
-                <div className="font-bold text-slate-100 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-mono">3</span>
-                  Imprime con calidad
-                </div>
-                <p className="leading-relaxed text-slate-400">
-                  Exporta tu composición a un PDF estandarizado tamaño A4 con el margen inferior especial de 15mm que asegura que ninguna impresora recorte tus pictogramas.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
       </main>
@@ -357,6 +362,54 @@ export default function App() {
               >
                 Confirmar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showHelp && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
+          <div className="bg-slate-900 border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left animate-in fade-in duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-blue-400" />
+                ¿Cómo funciona este Generador de Pictogramas?
+              </h3>
+              <button
+                onClick={() => setShowHelp(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 text-xs text-slate-300">
+              <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
+                <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center font-mono shrink-0">1</span>
+                  Sube tus imágenes
+                </div>
+                <p className="leading-relaxed text-slate-400">
+                  Haz clic en cualquier celda para cargar fotos o dibujos desde tu PC o tablet. También puedes <strong>arrastrar y soltar múltiples archivos</strong> de golpe.
+                </p>
+              </div>
+              <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
+                <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-mono shrink-0">2</span>
+                  Ajusta la cuadrícula
+                </div>
+                <p className="leading-relaxed text-slate-400">
+                  Cambia el número de filas, columnas y la separación entre ellas (gap). Todas las celdas conservarán exactamente el mismo tamaño para un acabado perfecto.
+                </p>
+              </div>
+              <div className="space-y-1 bg-slate-950/40 p-3.5 rounded-xl border border-white/5">
+                <div className="font-bold text-slate-100 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-mono shrink-0">3</span>
+                  Imprime con calidad
+                </div>
+                <p className="leading-relaxed text-slate-400">
+                  Exporta tu composición a un PDF estandarizado tamaño A4 con el margen inferior especial de 15mm que asegura que ninguna impresora recorte tus pictogramas.
+                </p>
+              </div>
             </div>
           </div>
         </div>
