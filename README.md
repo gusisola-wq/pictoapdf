@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Picto AAC
 
-# Run and deploy your AI Studio app
+Plataforma de Comunicación Aumentativa y Alternativa (CAA).
 
-This contains everything you need to run your app locally.
+## Estructura del Proyecto
 
-View your app in AI Studio: https://ai.studio/apps/b83a62b9-1dd5-431a-907f-ac2d451cbf7f
+```
+picto-aac/
+├── apps/
+│   └── web/              # Aplicación web (Vite + React)
+├── packages/
+│   ├── core/             # Tipos, constantes, stores (Zustand)
+│   └── storage/          # Persistencia (Dexie/IndexedDB)
+├── turbo.json            # Orquestación de builds
+└── package.json          # Workspace raíz
+```
 
-## Run Locally
+## Desarrollo Local
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev     # localhost:3000
+npm run lint    # TypeScript check
+npm run test    # Tests
+```

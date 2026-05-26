@@ -1,101 +1,60 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { SheetPage, GridSettings, PictogramItem } from '../types';
+import { useUserStore, useUIStore, uid, DEFAULT_SETTINGS,
+  type SheetPage, type GridSettings, type PictogramItem } from '@picto/core';
+import { loadGridState, saveGridState, resetGridState } from '@picto/storage';
 import { INITIAL_SAMPLE_PICTOGRAMS } from '../data/samples';
 import { generatePDF } from '../utils/pdfGenerator';
-import { STORAGE_KEY, getPrintArea, INITIAL_SCALE_WIDTH } from '../utils/constants';
+import { INITIAL_SCALE_WIDTH, getPrintArea } from '@picto/core';
 
-let _idCounter = 0;
-function uid(prefix: string): string {
-  return `${prefix}-${++_idCounter}-${Date.now()}`;
-}
+export function usePictoGrid() {
+  const currentUser = useUserStore((s) => s.currentUser);
+  const onToast = useUIStore((s) => s.triggerToast);
 
-const DEFAULT_SETTINGS: GridSettings = {
-  columns: 4,
-  rows: 4,
-  gap: 4,
-  borderColor: '#374151',
-  borderWidth: 2,
-  borderRadius: 8,
-  textColor: '#1F2937',
-  fontSize: 14,
-  textPosition: 'bottom',
-  textCase: 'uppercase',
-  textBold: true,
-  showGridLines: true,
-  fitMode: 'contain',
-  layoutMode: 'grid',
-  picWidth: 46,
-  picHeight: 46,
-  paperSize: 'A4',
-  orientation: 'portrait',
-  paperWidth: 210,
-  paperHeight: 297,
-  marginTop: 5,
-  marginBottom: 15,
-  marginLeft: 5,
-  marginRight: 5,
-};
-
-interface SavedState {
-  settings: GridSettings;
-  pages: SheetPage[];
-  activePageIndex: number;
-}
-
-function loadState(): SavedState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as SavedState;
-  } catch { /* ignore */ }
-  return null;
-}
-
-function saveState(settings: GridSettings, pages: SheetPage[], activePageIndex: number) {
-  try {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ settings, pages, activePageIndex }),
-    );
-  } catch { /* ignore */ }
-}
-
-function createInitialPages(): SheetPage[] {
-  return [
-    {
-      id: 'page-1',
-      name: 'Página 1',
-      pictograms: { ...INITIAL_SAMPLE_PICTOGRAMS },
-    },
-  ];
-}
-
-export function usePictoGrid(onToast: (msg: string) => void) {
-  const saved = loadState();
-
-  const initialSettings: GridSettings = saved?.settings
-    ? { ...DEFAULT_SETTINGS, ...saved.settings }
-    : DEFAULT_SETTINGS;
-
-  const [settings, setSettings] = useState<GridSettings>(initialSettings);
-  const [pages, setPages] = useState<SheetPage[]>(
-    saved?.pages ?? createInitialPages(),
-  );
-  const [activePageIndex, setActivePageIndex] = useState<number>(
-    saved?.activePageIndex ?? 0,
-  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [settings, setSettings] = useState<GridSettings>(DEFAULT_SETTINGS);
+  const [pages, setPages] = useState<SheetPage[]>([{
+    id: 'page-1',
+    name: 'Página 1',
+    pictograms: { ...INITIAL_SAMPLE_PICTOGRAMS },
+  }]);
+  const [activePageIndex, setActivePageIndex] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [moveSourceSlot, setMoveSourceSlot] = useState<number | null>(null);
-  const [scaleWidth, setScaleWidth] = useState<number>(INITIAL_SCALE_WIDTH);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
-
-  const activePageAtUploadRef = useRef(activePageIndex);
-  activePageAtUploadRef.current = activePageIndex;
-
-  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [scaleWidth, setScaleWidth] = useState(INITIAL_SCALE_WIDTH);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   useEffect(() => {
-    saveState(settings, pages, activePageIndex);
-  }, [settings, pages, activePageIndex]);
+    if (!currentUser) return;
+    let cancelled = false;
+
+    loadGridState(currentUser.id).then((saved) => {
+      if (cancelled) return;
+      if (saved) {
+        setSettings(saved.settings);
+        setPages(saved.pages);
+        setActivePageIndex(saved.activePageIndex);
+      }
+      setIsLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [currentUser]);
+
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!currentUser) return;
+
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveGridState(currentUser.id, { settings, pages, activePageIndex });
+    }, 300);
+
+    return () => clearTimeout(saveTimerRef.current);
+  }, [settings, pages, activePageIndex, isLoading, currentUser]);
+
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     return () => clearTimeout(resetTimerRef.current);
@@ -105,7 +64,6 @@ export function usePictoGrid(onToast: (msg: string) => void) {
 
   const handleUpdateSlot = useCallback(
     (slotIdx: number, slotData: Partial<PictogramItem> | null) => {
-      let isClear = false;
       setPages((prev) => {
         const updated = [...prev];
         const page = updated[activePageIndex];
@@ -113,7 +71,6 @@ export function usePictoGrid(onToast: (msg: string) => void) {
           const updatedPictograms = { ...page.pictograms };
           delete updatedPictograms[slotIdx];
           page.pictograms = updatedPictograms;
-          isClear = true;
         } else {
           const itemExists = page.pictograms[slotIdx];
           const updatedItem: PictogramItem = {
@@ -207,7 +164,6 @@ export function usePictoGrid(onToast: (msg: string) => void) {
 
       function flush() {
         const valid = results.filter((r): r is BulkResult => r !== null);
-        const pageAtUpload = activePageAtUploadRef.current;
 
         setPages((prev) => {
           const updated = [...prev];
@@ -232,7 +188,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
           return updated;
         });
 
-        if (pagesToAdd > 0 && activePageIndex === pageAtUpload) {
+        if (pagesToAdd > 0) {
           setActivePageIndex(firstNewPageIdx + pagesToAdd - 1);
         }
 
@@ -417,10 +373,11 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     onToast(`Pictogramas reordenados en ${totalPages} página(s).`);
   }, [pages, settings.columns, settings.rows, onToast]);
 
-  const handleResetAll = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
+  const handleResetAll = useCallback(async () => {
+    if (!currentUser) return;
+    await resetGridState(currentUser.id);
     setSettings(DEFAULT_SETTINGS);
-    setPages(createInitialPages());
+    setPages([{ id: uid('page'), name: 'Página 1', pictograms: { ...INITIAL_SAMPLE_PICTOGRAMS } }]);
     setActivePageIndex(0);
     setSelectedSlot(null);
     setMoveSourceSlot(null);
@@ -428,9 +385,10 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     onToast('Configuración restablecida. La página se recargará.');
     clearTimeout(resetTimerRef.current);
     resetTimerRef.current = setTimeout(() => window.location.reload(), 800);
-  }, [onToast]);
+  }, [currentUser, onToast]);
 
   return {
+    isLoading,
     settings,
     setSettings,
     pages,

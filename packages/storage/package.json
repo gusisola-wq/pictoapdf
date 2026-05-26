@@ -1,0 +1,19 @@
+{
+  "name": "@picto/storage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "clean": "npx rimraf dist"
+  },
+  "dependencies": {
+    "@picto/core": "*",
+    "dexie": "^4.0.10"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.2"
+  }
+}

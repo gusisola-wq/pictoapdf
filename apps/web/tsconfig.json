@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@picto/core": ["../../packages/core/src"],
+      "@picto/core/*": ["../../packages/core/src/*"],
+      "@picto/storage": ["../../packages/storage/src"],
+      "@picto/storage/*": ["../../packages/storage/src/*"]
+    }
+  },
+  "include": ["src"]
+}
