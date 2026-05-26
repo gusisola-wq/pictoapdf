@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { SheetPage, GridSettings, FITZGERALD_CATEGORIES } from '../types';
 import { Plus, X, ArrowLeftRight } from 'lucide-react';
 import { getPaperDimensions, getPrintArea, A4_WIDTH_PX_96DPI, PT_TO_PX } from '../utils/constants';
@@ -15,7 +15,7 @@ interface A4PagePreviewProps {
   onSlotDropToSwap: (targetIndex: number) => void;
 }
 
-export const A4PagePreview: React.FC<A4PagePreviewProps> = ({
+export const A4PagePreview: FC<A4PagePreviewProps> = ({
   page,
   settings,
   scaleWidth,

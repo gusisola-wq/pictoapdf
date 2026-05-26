@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { SheetPage, GridSettings, PictogramItem } from '../types';
 import { INITIAL_SAMPLE_PICTOGRAMS } from '../data/samples';
 import { generatePDF } from '../utils/pdfGenerator';
-import { STORAGE_KEY, getPrintArea } from '../utils/constants';
+import { STORAGE_KEY, getPrintArea, INITIAL_SCALE_WIDTH } from '../utils/constants';
 
 let _idCounter = 0;
 function uid(prefix: string): string {
@@ -85,7 +85,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
   );
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [moveSourceSlot, setMoveSourceSlot] = useState<number | null>(null);
-  const [scaleWidth, setScaleWidth] = useState<number>(680);
+  const [scaleWidth, setScaleWidth] = useState<number>(INITIAL_SCALE_WIDTH);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
 
   const activePageAtUploadRef = useRef(activePageIndex);
@@ -152,7 +152,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
       })();
 
       const fileArray = Array.from(files);
-      const page = pages[activePageIndex];
+      const page = pages[activePageIndex] ?? pages[0];
       const occupiedSet = new Set(
         Object.entries(page?.pictograms ?? {})
           .filter(([, p]) => p.imageUrl)
@@ -424,7 +424,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     setActivePageIndex(0);
     setSelectedSlot(null);
     setMoveSourceSlot(null);
-    setScaleWidth(680);
+    setScaleWidth(INITIAL_SCALE_WIDTH);
     onToast('Configuración restablecida. La página se recargará.');
     clearTimeout(resetTimerRef.current);
     resetTimerRef.current = setTimeout(() => window.location.reload(), 800);

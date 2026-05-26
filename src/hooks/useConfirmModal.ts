@@ -28,5 +28,5 @@ export function useConfirmModal() {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  return { confirmModal, showConfirm, hideConfirm, setConfirmModal };
+  return { confirmModal, showConfirm, hideConfirm };
 }

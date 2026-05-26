@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { FileText } from 'lucide-react';
 
 interface PageManagerProps {
@@ -25,7 +25,7 @@ const XIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const PageManager: React.FC<PageManagerProps> = ({
+export const PageManager: FC<PageManagerProps> = ({
   pagesCount,
   activePageIndex,
   onAddPage,

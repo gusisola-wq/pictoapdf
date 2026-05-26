@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { GridSettings } from '../types';
 import { Type } from 'lucide-react';
 
@@ -7,7 +7,7 @@ interface TextStylingProps {
   onSettingsChange: (settings: GridSettings) => void;
 }
 
-export const TextStyling: React.FC<TextStylingProps> = ({
+export const TextStyling: FC<TextStylingProps> = ({
   settings,
   onSettingsChange,
 }) => {

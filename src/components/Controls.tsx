@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { GridSettings, PictogramItem } from '../types';
 import { PageManager } from './PageManager';
 import { GridControls } from './GridControls';
@@ -28,7 +28,7 @@ interface ControlsProps {
   onCloseCellEditor?: () => void;
 }
 
-export const Controls: React.FC<ControlsProps> = (props) => {
+export const Controls: FC<ControlsProps> = (props) => {
   return (
     <div className="flex flex-col gap-6 select-none max-h-full overflow-y-auto pr-1">
       <PageManager

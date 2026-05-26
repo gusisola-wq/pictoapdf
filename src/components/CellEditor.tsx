@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef, type FC } from 'react';
 import { PictogramItem, FITZGERALD_CATEGORIES } from '../types';
 import { Settings2, UploadCloud, Trash2, HelpCircle, X } from 'lucide-react';
 
@@ -9,7 +9,7 @@ interface CellEditorProps {
   onClose?: () => void;
 }
 
-export const CellEditor: React.FC<CellEditorProps> = ({
+export const CellEditor: FC<CellEditorProps> = ({
   selectedSlot,
   selectedSlotItem,
   onUpdateSlot,

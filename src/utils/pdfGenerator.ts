@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { SheetPage, GridSettings, PictogramItem, FITZGERALD_CATEGORIES } from '../types';
-import { PX_TO_MM, PT_TO_MM, getPaperDimensions, getPrintArea } from './constants';
+import { PX_TO_MM, PT_TO_MM, getPaperDimensions, getPrintArea, SVG_RENDER_SIZE, CELL_PADDING_MM } from './constants';
 
 interface LoadedImage {
   element: HTMLImageElement;
@@ -23,7 +23,7 @@ export function hexToRgb(hex: string): [number, number, number] {
 }
 
 function isSvgUrl(url: string): boolean {
-  return url.startsWith('data:image/svg') || url.toLowerCase().endsWith('.svg');
+  return url.startsWith('data:image/svg');
 }
 
 function renderSvgToCanvas(img: HTMLImageElement, size: number): Promise<string> {
@@ -47,17 +47,16 @@ function loadImageAsync(url: string): Promise<LoadedImage> {
       let w = img.naturalWidth || 100;
       let h = img.naturalHeight || 100;
       if (isSvgUrl(url) || w === 0 || h === 0) {
-        const renderSize = 200;
-        const pngDataUrl = await renderSvgToCanvas(img, renderSize);
+        const pngDataUrl = await renderSvgToCanvas(img, SVG_RENDER_SIZE);
         const pngImg = new Image();
         pngImg.onload = () => {
           resolve({
             element: pngImg,
-            width: pngImg.naturalWidth || renderSize,
-            height: pngImg.naturalHeight || renderSize,
+            width: pngImg.naturalWidth || SVG_RENDER_SIZE,
+            height: pngImg.naturalHeight || SVG_RENDER_SIZE,
           });
         };
-        pngImg.onerror = () => resolve({ element: pngImg, width: renderSize, height: renderSize });
+        pngImg.onerror = () => resolve({ element: pngImg, width: SVG_RENDER_SIZE, height: SVG_RENDER_SIZE });
         pngImg.src = pngDataUrl;
       } else {
         resolve({ element: img, width: w, height: h });
@@ -219,11 +218,10 @@ export async function generatePDF(
           doc.rect(cellX, cellY, cellWidth, cellHeight, 'FD');
         }
 
-        const padding = 2;
-        const innerX = cellX + padding;
-        const innerY = cellY + padding;
-        const innerWidth = cellWidth - padding * 2;
-        const innerHeight = cellHeight - padding * 2;
+        const innerX = cellX + CELL_PADDING_MM;
+        const innerY = cellY + CELL_PADDING_MM;
+        const innerWidth = cellWidth - CELL_PADDING_MM * 2;
+        const innerHeight = cellHeight - CELL_PADDING_MM * 2;
 
         if (innerWidth <= 0 || innerHeight <= 0) continue;
 

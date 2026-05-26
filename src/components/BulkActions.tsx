@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef, type FC } from 'react';
 import {
   UploadCloud,
   FolderOpen,
@@ -18,7 +18,7 @@ interface BulkActionsProps {
   isGeneratingPDF: boolean;
 }
 
-export const BulkActions: React.FC<BulkActionsProps> = ({
+export const BulkActions: FC<BulkActionsProps> = ({
   onBulkUpload,
   onLoadSamples,
   onClearOnlyImages,

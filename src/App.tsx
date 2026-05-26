@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { usePictoGrid } from './hooks/usePictoGrid';
 import { useToast } from './hooks/useToast';
 import { useConfirmModal } from './hooks/useConfirmModal';

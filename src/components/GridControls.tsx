@@ -1,7 +1,14 @@
-import React from 'react';
+import type { FC } from 'react';
 import { GridSettings } from '../types';
 import { Columns, Grid3X3, Settings2, RefreshCw } from 'lucide-react';
-import { getPrintArea, getPaperDimensions, PAPER_SIZES } from '../utils/constants';
+import { getPrintArea, getPaperDimensions, PAPER_SIZES,
+  GRID_COLUMNS_MAX, GRID_ROWS_MAX,
+  PIC_WIDTH_MIN, PIC_WIDTH_MAX, PIC_HEIGHT_MIN, PIC_HEIGHT_MAX,
+  GAP_MIN, GAP_MAX,
+  PAPER_DIM_MIN, PAPER_DIM_MAX,
+  MARGIN_MIN, MARGIN_MAX,
+} from '../utils/constants';
+import MarginControl from './MarginControl';
 
 interface GridControlsProps {
   settings: GridSettings;
@@ -9,7 +16,7 @@ interface GridControlsProps {
   onReflow: () => void;
 }
 
-export const GridControls: React.FC<GridControlsProps> = ({
+export const GridControls: FC<GridControlsProps> = ({
   settings,
   onSettingsChange,
   onReflow,
@@ -80,17 +87,19 @@ export const GridControls: React.FC<GridControlsProps> = ({
             <div className="flex items-center gap-1">
               <button
                 type="button"
+                aria-label="Reducir columnas"
                 onClick={() => handleSettingUpdate('columns', Math.max(1, settings.columns - 1))}
                 className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-lg hover:bg-white/10 active:bg-white/15 text-slate-200 text-sm font-bold"
               >
                 -
               </button>
-              <span className="flex-1 text-center font-mono text-sm font-semibold text-slate-100">
+              <span className="flex-1 text-center font-mono text-sm font-semibold text-slate-100" role="status" aria-label={`${settings.columns} columnas`}>
                 {settings.columns}
               </span>
               <button
                 type="button"
-                onClick={() => handleSettingUpdate('columns', Math.min(10, settings.columns + 1))}
+                aria-label="Aumentar columnas"
+                onClick={() => handleSettingUpdate('columns', Math.min(GRID_COLUMNS_MAX, settings.columns + 1))}
                 className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-lg hover:bg-white/10 active:bg-white/15 text-slate-200 text-sm font-bold"
               >
                 +
@@ -105,17 +114,19 @@ export const GridControls: React.FC<GridControlsProps> = ({
             <div className="flex items-center gap-1">
               <button
                 type="button"
+                aria-label="Reducir filas"
                 onClick={() => handleSettingUpdate('rows', Math.max(1, settings.rows - 1))}
                 className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-lg hover:bg-white/10 active:bg-white/15 text-slate-200 text-sm font-bold"
               >
                 -
               </button>
-              <span className="flex-1 text-center font-mono text-sm font-semibold text-slate-100">
+              <span className="flex-1 text-center font-mono text-sm font-semibold text-slate-100" role="status" aria-label={`${settings.rows} filas`}>
                 {settings.rows}
               </span>
               <button
                 type="button"
-                onClick={() => handleSettingUpdate('rows', Math.min(12, settings.rows + 1))}
+                aria-label="Aumentar filas"
+                onClick={() => handleSettingUpdate('rows', Math.min(GRID_ROWS_MAX, settings.rows + 1))}
                 className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-lg hover:bg-white/10 active:bg-white/15 text-slate-200 text-sm font-bold"
               >
                 +
@@ -133,17 +144,19 @@ export const GridControls: React.FC<GridControlsProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSettingUpdate('picWidth', Math.max(15, (settings.picWidth || 46) - 1))}
+                  aria-label="Reducir ancho del pictograma"
+                  onClick={() => handleSettingUpdate('picWidth', Math.max(PIC_WIDTH_MIN, (settings.picWidth || 46) - 1))}
                   className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 active:bg-white/15 rounded text-xs text-white"
                 >
                   -
                 </button>
-                <span className="text-xs font-mono font-bold text-blue-300 bg-blue-900/40 px-1.5 py-0.5 rounded border border-blue-500/20">
+                <span className="text-xs font-mono font-bold text-blue-300 bg-blue-900/40 px-1.5 py-0.5 rounded border border-blue-500/20" role="status" aria-label={`${settings.picWidth || 46} milímetros de ancho`}>
                   {settings.picWidth || 46} mm
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleSettingUpdate('picWidth', Math.min(190, (settings.picWidth || 46) + 1))}
+                  aria-label="Aumentar ancho del pictograma"
+                  onClick={() => handleSettingUpdate('picWidth', Math.min(PIC_WIDTH_MAX, (settings.picWidth || 46) + 1))}
                   className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 active:bg-white/15 rounded text-xs text-white"
                 >
                   +
@@ -168,17 +181,19 @@ export const GridControls: React.FC<GridControlsProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSettingUpdate('picHeight', Math.max(15, (settings.picHeight || 46) - 1))}
+                  aria-label="Reducir alto del pictograma"
+                  onClick={() => handleSettingUpdate('picHeight', Math.max(PIC_HEIGHT_MIN, (settings.picHeight || 46) - 1))}
                   className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 active:bg-white/15 rounded text-xs text-white"
                 >
                   -
                 </button>
-                <span className="text-xs font-mono font-bold text-blue-300 bg-blue-900/40 px-1.5 py-0.5 rounded border border-blue-500/20">
+                <span className="text-xs font-mono font-bold text-blue-300 bg-blue-900/40 px-1.5 py-0.5 rounded border border-blue-500/20" role="status" aria-label={`${settings.picHeight || 46} milímetros de alto`}>
                   {settings.picHeight || 46} mm
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleSettingUpdate('picHeight', Math.min(260, (settings.picHeight || 46) + 1))}
+                  aria-label="Aumentar alto del pictograma"
+                  onClick={() => handleSettingUpdate('picHeight', Math.min(PIC_HEIGHT_MAX, (settings.picHeight || 46) + 1))}
                   className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 active:bg-white/15 rounded text-xs text-white"
                 >
                   +
@@ -233,11 +248,12 @@ export const GridControls: React.FC<GridControlsProps> = ({
         </div>
         <input
           type="range"
-          min="0"
-          max="20"
+          min={GAP_MIN}
+          max={GAP_MAX}
           step="1"
           value={settings.gap}
           onChange={(e) => handleSettingUpdate('gap', parseInt(e.target.value))}
+          aria-label="Separación entre pictogramas"
           className="w-full accent-blue-500 cursor-pointer h-1.5 bg-slate-900/50 rounded-lg appearance-none"
         />
       </div>
@@ -311,16 +327,18 @@ export const GridControls: React.FC<GridControlsProps> = ({
                 <label className="block text-[11px] font-medium text-slate-300 mb-1">Ancho</label>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => handleSettingUpdate('paperWidth', Math.max(50, (settings.paperWidth ?? 210) - 1))}
+                    aria-label="Reducir ancho de hoja personalizada"
+                    onClick={() => handleSettingUpdate('paperWidth', Math.max(PAPER_DIM_MIN, (settings.paperWidth ?? 210) - 1))}
                     className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white"
                   >
                     -
                   </button>
-                  <span className="flex-1 text-center font-mono text-xs font-bold text-blue-300 bg-blue-900/40 px-1 py-0.5 rounded border border-blue-500/20">
+                  <span className="flex-1 text-center font-mono text-xs font-bold text-blue-300 bg-blue-900/40 px-1 py-0.5 rounded border border-blue-500/20" role="status" aria-label={`${settings.paperWidth ?? 210} milímetros de ancho`}>
                     {settings.paperWidth ?? 210} mm
                   </span>
                   <button
-                    onClick={() => handleSettingUpdate('paperWidth', Math.min(500, (settings.paperWidth ?? 210) + 1))}
+                    aria-label="Aumentar ancho de hoja personalizada"
+                    onClick={() => handleSettingUpdate('paperWidth', Math.min(PAPER_DIM_MAX, (settings.paperWidth ?? 210) + 1))}
                     className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white"
                   >
                     +
@@ -331,16 +349,18 @@ export const GridControls: React.FC<GridControlsProps> = ({
                 <label className="block text-[11px] font-medium text-slate-300 mb-1">Alto</label>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => handleSettingUpdate('paperHeight', Math.max(50, (settings.paperHeight ?? 297) - 1))}
+                    aria-label="Reducir alto de hoja personalizada"
+                    onClick={() => handleSettingUpdate('paperHeight', Math.max(PAPER_DIM_MIN, (settings.paperHeight ?? 297) - 1))}
                     className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white"
                   >
                     -
                   </button>
-                  <span className="flex-1 text-center font-mono text-xs font-bold text-blue-300 bg-blue-900/40 px-1 py-0.5 rounded border border-blue-500/20">
+                  <span className="flex-1 text-center font-mono text-xs font-bold text-blue-300 bg-blue-900/40 px-1 py-0.5 rounded border border-blue-500/20" role="status" aria-label={`${settings.paperHeight ?? 297} milímetros de alto`}>
                     {settings.paperHeight ?? 297} mm
                   </span>
                   <button
-                    onClick={() => handleSettingUpdate('paperHeight', Math.min(500, (settings.paperHeight ?? 297) + 1))}
+                    aria-label="Aumentar alto de hoja personalizada"
+                    onClick={() => handleSettingUpdate('paperHeight', Math.min(PAPER_DIM_MAX, (settings.paperHeight ?? 297) + 1))}
                     className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white"
                   >
                     +
@@ -368,29 +388,29 @@ export const GridControls: React.FC<GridControlsProps> = ({
           <MarginControl
             label="Superior"
             value={settings.marginTop}
-            min={0}
-            max={50}
+            min={MARGIN_MIN}
+            max={MARGIN_MAX}
             onChange={(v) => handleSettingUpdate('marginTop', v)}
           />
           <MarginControl
             label="Inferior"
             value={settings.marginBottom}
-            min={0}
-            max={50}
+            min={MARGIN_MIN}
+            max={MARGIN_MAX}
             onChange={(v) => handleSettingUpdate('marginBottom', v)}
           />
           <MarginControl
             label="Izquierdo"
             value={settings.marginLeft}
-            min={0}
-            max={50}
+            min={MARGIN_MIN}
+            max={MARGIN_MAX}
             onChange={(v) => handleSettingUpdate('marginLeft', v)}
           />
           <MarginControl
             label="Derecho"
             value={settings.marginRight}
-            min={0}
-            max={50}
+            min={MARGIN_MIN}
+            max={MARGIN_MAX}
             onChange={(v) => handleSettingUpdate('marginRight', v)}
           />
         </div>
@@ -398,40 +418,3 @@ export const GridControls: React.FC<GridControlsProps> = ({
     </div>
   );
 };
-
-function MarginControl({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-slate-400 text-[11px]">{label}</span>
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => onChange(Math.max(min, value - 1))}
-          className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white font-bold"
-        >
-          -
-        </button>
-        <span className="w-10 text-center font-mono text-xs font-bold text-white bg-slate-950/60 px-1 py-0.5 rounded border border-white/10">
-          {value}
-        </span>
-        <button
-          onClick={() => onChange(Math.min(max, value + 1))}
-          className="w-6 h-6 flex items-center justify-center border border-white/15 hover:bg-white/10 rounded text-xs text-white font-bold"
-        >
-          +
-        </button>
-      </div>
-    </div>
-  );
-}

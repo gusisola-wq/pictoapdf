@@ -14,6 +14,29 @@ export const A4_WIDTH_PX_96DPI = 793.7;
 export const STORAGE_KEY = 'pictodraft-state';
 export const TOAST_DURATION_MS = 4500;
 
+export const SVG_RENDER_SIZE = 200;
+export const CELL_PADDING_MM = 2;
+export const INITIAL_SCALE_WIDTH = 680;
+
+export const GRID_COLUMNS_MIN = 1;
+export const GRID_COLUMNS_MAX = 10;
+export const GRID_ROWS_MIN = 1;
+export const GRID_ROWS_MAX = 12;
+
+export const PIC_WIDTH_MIN = 15;
+export const PIC_WIDTH_MAX = 190;
+export const PIC_HEIGHT_MIN = 15;
+export const PIC_HEIGHT_MAX = 260;
+
+export const GAP_MIN = 0;
+export const GAP_MAX = 20;
+
+export const PAPER_DIM_MIN = 50;
+export const PAPER_DIM_MAX = 500;
+
+export const MARGIN_MIN = 0;
+export const MARGIN_MAX = 50;
+
 export function getPaperDimensions(settings: GridSettings): { width: number; height: number } {
   let width: number;
   let height: number;
