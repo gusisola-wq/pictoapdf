@@ -111,7 +111,7 @@ export default function App() {
 
   return (
     <div
-      className="h-screen bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] text-slate-100 flex flex-col font-sans overflow-hidden"
+      className="h-dvh bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] text-slate-100 flex flex-col font-sans overflow-hidden"
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
@@ -160,7 +160,7 @@ export default function App() {
         </div>
       )}
 
-      <main className={`flex-1 flex flex-col lg:flex-row ${
+      <main className={`flex-1 max-h-full flex flex-col lg:flex-row ${
           leftCollapsed !== rightCollapsed ? 'overflow-hidden' : 'overflow-y-auto'
         } lg:overflow-hidden`}>
         <div
