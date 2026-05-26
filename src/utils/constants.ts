@@ -27,7 +27,7 @@ export function getPaperDimensions(settings: GridSettings): { width: number; hei
     height = preset.height;
   }
 
-  if (settings.orientation === 'landscape' && settings.paperSize !== 'custom') {
+  if (settings.orientation === 'landscape') {
     [width, height] = [height, width];
   }
 

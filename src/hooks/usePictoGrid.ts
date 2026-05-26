@@ -1,8 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SheetPage, GridSettings, PictogramItem } from '../types';
 import { INITIAL_SAMPLE_PICTOGRAMS } from '../data/samples';
 import { generatePDF } from '../utils/pdfGenerator';
 import { STORAGE_KEY, getPrintArea } from '../utils/constants';
+
+let _idCounter = 0;
+function uid(prefix: string): string {
+  return `${prefix}-${++_idCounter}-${Date.now()}`;
+}
 
 const DEFAULT_SETTINGS: GridSettings = {
   columns: 4,
@@ -83,9 +88,18 @@ export function usePictoGrid(onToast: (msg: string) => void) {
   const [scaleWidth, setScaleWidth] = useState<number>(680);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
 
+  const activePageAtUploadRef = useRef(activePageIndex);
+  activePageAtUploadRef.current = activePageIndex;
+
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   useEffect(() => {
     saveState(settings, pages, activePageIndex);
   }, [settings, pages, activePageIndex]);
+
+  useEffect(() => {
+    return () => clearTimeout(resetTimerRef.current);
+  }, []);
 
   const activePage = pages[activePageIndex] ?? pages[0];
 
@@ -103,7 +117,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
         } else {
           const itemExists = page.pictograms[slotIdx];
           const updatedItem: PictogramItem = {
-            id: itemExists?.id || `pic-${Date.now()}-${slotIdx}`,
+            id: itemExists?.id || uid('pic'),
             imageUrl: slotData.imageUrl ?? itemExists?.imageUrl,
             label: slotData.label ?? itemExists?.label ?? '',
             categoryId: slotData.categoryId ?? itemExists?.categoryId ?? 'none',
@@ -193,6 +207,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
 
       function flush() {
         const valid = results.filter((r): r is BulkResult => r !== null);
+        const pageAtUpload = activePageAtUploadRef.current;
 
         setPages((prev) => {
           const updated = [...prev];
@@ -200,14 +215,14 @@ export function usePictoGrid(onToast: (msg: string) => void) {
             while (updated.length <= r.pageIdx) {
               const n = updated.length + 1;
               updated.push({
-                id: `page-${Date.now()}-${n}`,
+                id: uid('page'),
                 name: `Página ${n}`,
                 pictograms: {},
               });
             }
             const pg = { ...updated[r.pageIdx], pictograms: { ...updated[r.pageIdx].pictograms } };
             pg.pictograms[r.slotIdx] = {
-              id: `pic-${Date.now()}-${r.slotIdx}-${r.pageIdx}`,
+              id: uid('pic'),
               imageUrl: r.dataUrl,
               label: r.label,
               categoryId: 'none',
@@ -217,7 +232,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
           return updated;
         });
 
-        if (pagesToAdd > 0) {
+        if (pagesToAdd > 0 && activePageIndex === pageAtUpload) {
           setActivePageIndex(firstNewPageIdx + pagesToAdd - 1);
         }
 
@@ -315,7 +330,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     setPages((prev) => [
       ...prev,
       {
-        id: `page-${Date.now()}`,
+        id: uid('page'),
         name: `Página ${newIdx}`,
         pictograms: {},
       },
@@ -389,7 +404,7 @@ export function usePictoGrid(onToast: (msg: string) => void) {
         pictograms[i - start] = allPictograms[i];
       }
       newPages.push({
-        id: `page-${Date.now()}-${p}`,
+        id: uid('page'),
         name: `Página ${p + 1}`,
         pictograms,
       });
@@ -411,7 +426,8 @@ export function usePictoGrid(onToast: (msg: string) => void) {
     setMoveSourceSlot(null);
     setScaleWidth(680);
     onToast('Configuración restablecida. La página se recargará.');
-    setTimeout(() => window.location.reload(), 800);
+    clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => window.location.reload(), 800);
   }, [onToast]);
 
   return {

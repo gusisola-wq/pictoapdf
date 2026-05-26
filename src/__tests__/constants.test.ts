@@ -98,7 +98,7 @@ describe('getPaperDimensions', () => {
     expect(dims.height).toBe(148);
   });
 
-  it('should NOT swap dimensions for custom paper in landscape', () => {
+  it('should swap dimensions for custom paper in landscape', () => {
     const dims = getPaperDimensions({
       ...BASE_SETTINGS,
       paperSize: 'custom',
@@ -106,8 +106,8 @@ describe('getPaperDimensions', () => {
       paperWidth: 300,
       paperHeight: 400,
     });
-    expect(dims.width).toBe(300);
-    expect(dims.height).toBe(400);
+    expect(dims.width).toBe(400);
+    expect(dims.height).toBe(300);
   });
 });
 

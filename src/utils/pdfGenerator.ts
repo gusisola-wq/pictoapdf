@@ -72,6 +72,12 @@ function loadImageAsync(url: string): Promise<LoadedImage> {
           height: 100,
         });
       };
+      fallback.onerror = () => {
+        const dummyImg = new Image();
+        dummyImg.width = 100;
+        dummyImg.height = 100;
+        resolve({ element: dummyImg, width: 100, height: 100 });
+      };
       fallback.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     };
     img.src = url;
