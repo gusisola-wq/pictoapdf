@@ -39,7 +39,7 @@ export function Header() {
             <Layers className="w-5 h-5" />
           </div>
           <h1 className="text-lg font-semibold tracking-tight text-slate-100">
-            Picto AAC
+            Plataforma CAA
           </h1>
         </div>
 

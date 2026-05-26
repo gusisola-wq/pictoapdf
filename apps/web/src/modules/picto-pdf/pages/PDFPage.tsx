@@ -111,7 +111,9 @@ export default function PDFPage() {
 
   return (
     <div
-      className="flex-1 max-h-full flex flex-col lg:flex-row overflow-hidden"
+      className={`flex-1 max-h-full flex flex-col lg:flex-row ${
+        leftCollapsed !== rightCollapsed ? 'overflow-hidden' : 'overflow-y-auto'
+      } lg:overflow-hidden`}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
@@ -122,7 +124,7 @@ export default function PDFPage() {
     >
       <div
         className={`w-full lg:w-[420px] bg-white/5 backdrop-blur-xl border-r border-white/10 p-4 lg:p-6 flex flex-col lg:overflow-y-auto lg:max-h-full min-h-0 ${
-          leftCollapsed ? 'flex-none' : (rightCollapsed ? 'flex-1 overflow-y-auto' : 'shrink-0')
+          leftCollapsed ? 'flex-none' : (rightCollapsed ? 'flex-1 overflow-y-auto' : 'min-h-full')
         } lg:flex-none lg:min-h-0`}
       >
         <div className="flex items-center justify-between mb-4 shrink-0">
@@ -195,7 +197,7 @@ export default function PDFPage() {
       <div
         id="preview-container-pane"
         className={`flex flex-col bg-black/20 p-4 lg:p-6 select-none relative min-h-0 ${
-          rightCollapsed ? 'flex-none' : (leftCollapsed ? 'flex-1 overflow-y-auto' : 'shrink-0')
+          rightCollapsed ? 'flex-none' : (leftCollapsed ? 'flex-1 overflow-y-auto' : 'min-h-full')
         } lg:flex-1 lg:min-h-0 lg:overflow-y-auto`}
       >
         <div className={`lg:hidden items-center justify-between mb-3 shrink-0 ${leftCollapsed || rightCollapsed ? 'flex' : 'hidden'}`}>

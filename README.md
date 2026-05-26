@@ -1,4 +1,4 @@
-# Picto AAC
+# Plataforma CAA
 
 Plataforma de Comunicación Aumentativa y Alternativa (CAA).
 

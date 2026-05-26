@@ -44,7 +44,7 @@ export function UserSelector() {
           <div className="p-3 bg-blue-600 rounded-xl inline-block mb-3 shadow-lg">
             <Layers className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-100">Picto AAC</h1>
+          <h1 className="text-2xl font-bold text-slate-100">Plataforma CAA</h1>
           <p className="text-sm text-slate-400 mt-1">
             Elige o crea tu perfil para empezar
           </p>
