@@ -3,6 +3,7 @@ import type { User } from '../types';
 import { uid } from '../utils';
 
 const USERS_STORAGE_KEY = 'picto-users';
+const CURRENT_USER_KEY = 'picto-current-user';
 
 function loadUsers(): User[] {
   try {
@@ -13,9 +14,28 @@ function loadUsers(): User[] {
   }
 }
 
+function loadCurrentUser(): User | null {
+  try {
+    const raw = localStorage.getItem(CURRENT_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function saveUsers(users: User[]) {
   try {
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  } catch { /* quota exceeded */ }
+}
+
+function saveCurrentUser(user: User | null) {
+  try {
+    if (user) {
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(CURRENT_USER_KEY);
+    }
   } catch { /* quota exceeded */ }
 }
 
@@ -36,11 +56,12 @@ interface UserStore {
 }
 
 export const useUserStore = create<UserStore>()((set, get) => ({
-  currentUser: null,
+  currentUser: loadCurrentUser(),
   users: loadUsers(),
 
   setCurrentUser: (user: User) => {
     set({ currentUser: user });
+    saveCurrentUser(user);
   },
 
   addUser: (name: string, avatar?: string) => {
@@ -53,12 +74,14 @@ export const useUserStore = create<UserStore>()((set, get) => ({
     const users = [...get().users, user];
     set({ users, currentUser: user });
     saveUsers(users);
+    saveCurrentUser(user);
     return user;
   },
 
   switchUser: (userId: string) => {
     const user = get().users.find((u) => u.id === userId) ?? null;
     set({ currentUser: user });
+    saveCurrentUser(user);
   },
 
   removeUser: (userId: string) => {
@@ -66,6 +89,7 @@ export const useUserStore = create<UserStore>()((set, get) => ({
     const currentUser = get().currentUser?.id === userId ? null : get().currentUser;
     set({ users, currentUser });
     saveUsers(users);
+    saveCurrentUser(currentUser);
   },
 
   loadUsers: () => {
