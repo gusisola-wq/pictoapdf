@@ -14,9 +14,20 @@ export interface GridStateRow {
   activePageIndex: number;
 }
 
+export interface CommunicatorBoardRow {
+  id: string;
+  userId: string;
+  name: string;
+  parentCellId: string | null;
+  columns: number;
+  rows: number;
+  cells: string;
+}
+
 export class PictoAACDB extends Dexie {
   users!: EntityTable<UserRow, 'id'>;
   gridStates!: EntityTable<GridStateRow, 'userId'>;
+  communicatorBoards!: EntityTable<CommunicatorBoardRow, 'id'>;
 
   constructor() {
     super('picto-aac');
@@ -24,6 +35,12 @@ export class PictoAACDB extends Dexie {
     this.version(1).stores({
       users: 'id, name',
       gridStates: 'userId',
+    });
+
+    this.version(2).stores({
+      users: 'id, name',
+      gridStates: 'userId',
+      communicatorBoards: 'id, userId, parentCellId',
     });
   }
 }

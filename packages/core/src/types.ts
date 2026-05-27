@@ -73,3 +73,25 @@ export interface SavedGridState {
   pages: SheetPage[];
   activePageIndex: number;
 }
+
+export interface BoardCell {
+  id: string;
+  position: number;
+  label: string;
+  imageUrl?: string;
+  categoryId: string;
+  subBoardId?: string;
+  isFolder: boolean;
+  speakOnTap?: boolean;
+  addToSentence?: boolean;
+}
+
+export interface CommunicatorBoard {
+  id: string;
+  userId: string;
+  name: string;
+  parentCellId: string | null;
+  columns: number;
+  rows: number;
+  cells: BoardCell[];
+}

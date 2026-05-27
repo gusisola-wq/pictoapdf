@@ -21,7 +21,7 @@ export function UserSelector() {
       setTimeout(() => clearLegacyStorage(), 2000);
     }
 
-    navigate('/pdf', { replace: true });
+    navigate('/comunicador', { replace: true });
   }
 
   function handleCreateUser() {
@@ -34,7 +34,7 @@ export function UserSelector() {
       if (migrated) setTimeout(() => clearLegacyStorage(), 2000);
     });
 
-    navigate('/pdf', { replace: true });
+    navigate('/comunicador', { replace: true });
   }
 
   return (

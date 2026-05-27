@@ -22,6 +22,7 @@ export async function updateUser(id: string, data: Partial<Pick<UserRow, 'name' 
 export async function deleteUser(id: string): Promise<void> {
   await db.users.delete(id);
   await db.gridStates.where('userId').equals(id).delete();
+  await db.communicatorBoards.where('userId').equals(id).delete();
 }
 
 export async function userCount(): Promise<number> {

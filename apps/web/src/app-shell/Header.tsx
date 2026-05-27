@@ -4,8 +4,8 @@ import { useUserStore, AVATARS } from '@picto/core';
 import { Layers, ChevronDown } from 'lucide-react';
 
 const MODULES = [
-  { path: '/pdf', label: 'Picto a PDF', active: true },
-  { path: '#', label: 'Comunicador', disabled: true },
+  { path: '/comunicador', label: 'Comunicador' },
+  { path: '/pdf', label: 'Picto a PDF' },
 ];
 
 export function Header() {
@@ -28,7 +28,7 @@ export function Header() {
   function handleSelectUser(userId: string) {
     switchUser(userId);
     setDropdownOpen(false);
-    navigate('/pdf');
+    navigate('/comunicador');
   }
 
   return (
@@ -47,14 +47,11 @@ export function Header() {
           {MODULES.map((mod) => (
             <button
               key={mod.label}
-              onClick={() => !mod.disabled && navigate(mod.path)}
-              disabled={mod.disabled}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition ${
+              onClick={() => navigate(mod.path)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
                 location.pathname === mod.path
                   ? 'bg-white/10 text-white'
-                  : mod.disabled
-                    ? 'text-slate-600 cursor-not-allowed'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
               }`}
             >
               {mod.label}
